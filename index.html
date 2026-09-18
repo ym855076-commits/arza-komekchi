@@ -13,10 +13,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   @media print {
-    nav.tabs, .btn, header .subtitle, .toast, #panel-law, #panel-steps { display: none !important; }
+    nav.tabs, .btn, header .subtitle, .toast, #panel-law, #panel-steps, #fPhoto, label[for="fPhoto"], #photoPreviewWrap { display: none !important; }
     body { background: white; }
     .output { display: block !important; border: none; padding: 0; }
     section.panel { display: block !important; }
+    #printPhotoWrap { display: block !important; }
+  }
+  input[type=file] {
+    width: 100%;
+    font-size: 13.5px;
+    color: var(--ink-soft);
   }
 </style>
 <style>
@@ -86,7 +92,7 @@
     margin-bottom: 14px;
     flex-shrink: 0;
   }
-  .hero-top { display: flex; align-items: flex-start; gap: 14px; }
+  .hero-top { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
   h1 {
     font-family: 'Noto Serif', serif;
     font-weight: 700;
@@ -271,89 +277,101 @@
     <div class="hero-top">
       <div class="stamp">A</div>
       <div>
-        <h1>Arza Kömekçi</h1>
-        <div class="subtitle">Шаблоны заявлений в госорганы, ваши сроки и права, чек-лист подачи — на туркменском и по-русски.</div>
+        <h1 data-i18n="title">Arza Kömekçi</h1>
+        <div class="subtitle" data-i18n="subtitle">Шаблоны заявлений в госорганы, ваши сроки и права, чек-лист подачи — на туркменском и по-русски.</div>
       </div>
+      <button id="langToggle" class="btn secondary" style="margin-top:0; margin-left:auto; padding:8px 14px; font-size:13px; flex-shrink:0;">RU / TM</button>
     </div>
   </header>
 
   <nav class="tabs">
-    <button class="active" data-tab="tpl">Шаблоны</button>
-    <button data-tab="law">Права и сроки</button>
-    <button data-tab="steps">Чек-лист</button>
-    <button data-tab="hist">История</button>
+    <button class="active" data-tab="tpl" data-i18n="tabTpl">Шаблоны</button>
+    <button data-tab="law" data-i18n="tabLaw">Права и сроки</button>
+    <button data-tab="steps" data-i18n="tabSteps">Чек-лист</button>
+    <button data-tab="hist" data-i18n="tabHist">История</button>
   </nav>
 
   <section class="panel active" id="panel-tpl">
     <div class="card">
-      <label for="tplType">Куда обращаемся</label>
+      <label for="tplType" data-i18n="lblWhere">Куда обращаемся</label>
       <select id="tplType"></select>
 
-      <label for="fAddress">Ваш адрес (как в шапке заявления)</label>
+      <label for="fAddress" data-i18n="lblAddress">Ваш адрес (как в шапке заявления)</label>
       <textarea id="fAddress" placeholder="Lebap welaýaty, Türkmenabat şäheri, 3-nji mikroraýon, 14-nji jaý, 1, 2, 3-nji öýleriň ýaşaýjylary tarapyndan"></textarea>
 
-      <label for="fPhone">Телефон для связи</label>
+      <label for="fPhone" data-i18n="lblPhone">Телефон для связи</label>
       <input type="text" id="fPhone" placeholder="+993 65 20-95-59">
 
-      <label for="fProblem">Опишите проблему (можно по-русски — соберу фразу сам, или пишите сразу на туркменском)</label>
+      <label for="fProblem" data-i18n="lblProblem">Опишите проблему (можно по-русски — соберу фразу сам, или пишите сразу на туркменском)</label>
       <textarea id="fProblem" placeholder="Например: канализационный колодец у дома открыт, течёт 4-5 лет, запах, комары"></textarea>
 
-      <label for="fPast">Куда уже обращались раньше и когда (если это повторное обращение)</label>
+      <label for="fPast" data-i18n="lblPast">Куда уже обращались раньше и когда (если это повторное обращение)</label>
       <input type="text" id="fPast" placeholder="Например: Sanitariýa gullugyna 18.09.2026, jogap gelmedi">
 
-      <button class="btn" id="genBtn">Собрать заявление</button>
+      <label for="fPhoto" data-i18n="lblPhoto">Фото проблемы (необязательно, но усиливает заявление)</label>
+      <input type="file" id="fPhoto" accept="image/*">
+      <div id="photoPreviewWrap" style="display:none; margin-top:10px;">
+        <img id="photoPreview" style="max-width:100%; border:1px solid var(--line); border-radius:3px;">
+        <button class="btn secondary" id="photoRemove" style="margin-top:8px; padding:8px 14px; font-size:13px;" data-i18n="btnPhotoRemove">Убрать фото</button>
+      </div>
+
+      <button class="btn" id="genBtn" data-i18n="btnGen">Собрать заявление</button>
     </div>
 
     <div class="output" id="output"></div>
+    <div id="printPhotoWrap" style="display:none; text-align:center; margin-top:16px;">
+      <img id="printPhoto" style="max-width:100%; max-height:420px;">
+    </div>
     <div id="outputBtns" style="display:none;">
-      <button class="btn secondary" id="copyBtn">Скопировать текст</button>
-      <button class="btn secondary" id="printBtn">Печать / PDF</button>
-      <button class="btn secondary" id="saveBtn">Сохранить в историю</button>
+      <button class="btn secondary" id="copyBtn" data-i18n="btnCopy">Скопировать текст</button>
+      <button class="btn secondary" id="printBtn" data-i18n="btnPrint">Печать / Сохранить как PDF</button>
+      <button class="btn secondary" id="saveBtn" data-i18n="btnSave">Сохранить в историю</button>
+      <p class="caveat" data-i18n="pdfHint" style="margin-top:14px;">Если нет принтера рядом: в окне печати вверху выберите «Сохранить как PDF» вместо принтера — файл появится в папке Download, и его можно нести в копицентр.</p>
     </div>
   </section>
 
   <section class="panel" id="panel-law">
     <div class="card law-card">
-      <span class="tag">Сроки ответа</span>
-      <h3>Сколько должны рассматривать обращение</h3>
-      <p>Как правило: вопросы, не требующие проверки — до 15 дней. Если нужна проверка на месте (ваш случай с колодцем — почти всегда) — до 1 месяца со дня регистрации.</p>
-      <p>Если требуется дополнительная проверка или согласование с другой организацией, срок могут продлить ещё до 1 месяца — но обязаны письменно вас об этом уведомить.</p>
+      <span class="tag" data-i18n="lawTag1">Сроки ответа</span>
+      <h3 data-i18n="lawH1">Сколько должны рассматривать обращение</h3>
+      <p data-i18n="lawP1a">Как правило: вопросы, не требующие проверки — до 15 дней. Если нужна проверка на месте (ваш случай с колодцем — почти всегда) — до 1 месяца со дня регистрации.</p>
+      <p data-i18n="lawP1b">Если требуется дополнительная проверка или согласование с другой организацией, срок могут продлить ещё до 1 месяца — но обязаны письменно вас об этом уведомить.</p>
     </div>
     <div class="card law-card">
-      <span class="tag">Если письмо по почте</span>
-      <h3>Когда начинается отсчёт срока</h3>
-      <p>Срок считается не со дня отправки, а со дня регистрации письма в канцелярии организации. Внутри города это обычно 1-3 дня после отправки.</p>
-      <p>Сохраняйте почтовую квитанцию — это ваше доказательство даты обращения.</p>
+      <span class="tag" data-i18n="lawTag2">Если письмо по почте</span>
+      <h3 data-i18n="lawH2">Когда начинается отсчёт срока</h3>
+      <p data-i18n="lawP2a">Срок считается не со дня отправки, а со дня регистрации письма в канцелярии организации. Внутри города это обычно 1-3 дня после отправки.</p>
+      <p data-i18n="lawP2b">Сохраняйте почтовую квитанцию — это ваше доказательство даты обращения.</p>
     </div>
     <div class="card law-card">
-      <span class="tag">Если не отвечают</span>
-      <h3>Куда идти дальше</h3>
-      <p>1) Хякимлик города/этрапа — если жалоба была в отраслевую службу и она бездействует.</p>
-      <p>2) Прокуратура — вправе проверять исполнение обязанностей госорганами и коммунальными службами, вплоть до привлечения виновных к ответственности.</p>
-      <p>3) Adalatçy (Уполномоченный по правам человека Туркменистана) — принимает обращения, если госорган нарушил права и бездействует. Обычно туда обращаются уже после того, как испробованы обычные инстанции.</p>
+      <span class="tag" data-i18n="lawTag3">Если не отвечают</span>
+      <h3 data-i18n="lawH3">Куда идти дальше</h3>
+      <p data-i18n="lawP3a">1) Хякимлик города/этрапа — если жалоба была в отраслевую службу и она бездействует.</p>
+      <p data-i18n="lawP3b">2) Прокуратура — вправе проверять исполнение обязанностей госорганами и коммунальными службами, вплоть до привлечения виновных к ответственности.</p>
+      <p data-i18n="lawP3c">3) Adalatçy (Уполномоченный по правам человека Туркменистана) — принимает обращения, если госорган нарушил права и бездействует. Обычно туда обращаются уже после того, как испробованы обычные инстанции.</p>
     </div>
     <div class="card law-card">
-      <span class="tag">Что усиливает жалобу</span>
-      <h3>Как писать, если это уже не первое обращение</h3>
-      <p>Обязательно указывайте: куда обращались раньше, какого числа, и что ответа/результата не было. Это превращает жалобу из "просьбы" в основание для проверки самой организации за бездействие.</p>
+      <span class="tag" data-i18n="lawTag4">Что усиливает жалобу</span>
+      <h3 data-i18n="lawH4">Как писать, если это уже не первое обращение</h3>
+      <p data-i18n="lawP4a">Обязательно указывайте: куда обращались раньше, какого числа, и что ответа/результата не было. Это превращает жалобу из "просьбы" в основание для проверки самой организации за бездействие.</p>
     </div>
-    <p class="caveat">Это общие ориентиры, собранные из открытых источников, а не точная цитата статей закона — актуальные редакции законов Туркменистана не всегда есть в открытом доступе. При подаче уточняйте точные сроки и порядок на месте, в приёмной самой организации.</p>
+    <p class="caveat" id="lawCaveat">Это общие ориентиры, собранные из открытых источников, а не точная цитата статей закона — актуальные редакции законов Туркменистана не всегда есть в открытом доступе. При подаче уточняйте точные сроки и порядок на месте, в приёмной самой организации.</p>
   </section>
 
   <section class="panel" id="panel-hist">
-    <div class="card" id="histEmpty">Здесь появятся сохранённые заявления, когда нажмёте «Сохранить в историю».</div>
+    <div class="card" id="histEmpty" data-i18n="histEmpty">Здесь появятся сохранённые заявления, когда нажмёте «Сохранить в историю».</div>
     <div id="histList"></div>
   </section>
 
   <section class="panel" id="panel-steps">
     <div class="card">
       <ol class="checklist">
-        <li><div><strong>Соберите подписи соседей</strong><span>ФИО и подпись каждого в таблице внизу заявления.</span></div></li>
-        <li><div><strong>Впишите дату</strong><span>Число подачи — в строке "Senesi".</span></div></li>
-        <li><div><strong>Распечатайте с запасом</strong><span>Один экземпляр для организации, второй (или фото уже подписанного) — себе.</span></div></li>
-        <li><div><strong>Подайте лично или по почте</strong><span>Лично — просите штамп/входящий номер на своём экземпляре. По почте — заказным письмом, сохраните квитанцию.</span></div></li>
-        <li><div><strong>Засеките срок</strong><span>Обычно до 1 месяца с даты регистрации.</span></div></li>
-        <li><div><strong>Нет ответа — идём выше</strong><span>Хякимлик → прокуратура, указывая даты прошлых обращений.</span></div></li>
+        <li><div><strong data-i18n="step1t">Соберите подписи соседей</strong><span data-i18n="step1d">ФИО и подпись каждого в таблице внизу заявления.</span></div></li>
+        <li><div><strong data-i18n="step2t">Впишите дату</strong><span data-i18n="step2d">Число подачи — в строке "Senesi".</span></div></li>
+        <li><div><strong data-i18n="step3t">Распечатайте с запасом</strong><span data-i18n="step3d">Один экземпляр для организации, второй (или фото уже подписанного) — себе.</span></div></li>
+        <li><div><strong data-i18n="step4t">Подайте лично или по почте</strong><span data-i18n="step4d">Лично — просите штамп/входящий номер на своём экземпляре. По почте — заказным письмом, сохраните квитанцию.</span></div></li>
+        <li><div><strong data-i18n="step5t">Засеките срок</strong><span data-i18n="step5d">Обычно до 1 месяца с даты регистрации.</span></div></li>
+        <li><div><strong data-i18n="step6t">Нет ответа — идём выше</strong><span data-i18n="step6d">Хякимлик → прокуратура, указывая даты прошлых обращений.</span></div></li>
       </ol>
     </div>
   </section>
@@ -363,6 +381,127 @@
 <div class="toast" id="toast">Скопировано</div>
 
 <script>
+const I18N = {
+  ru: {
+    title: 'Arza Kömekçi',
+    subtitle: 'Шаблоны заявлений в госорганы, ваши сроки и права, чек-лист подачи — на туркменском и по-русски.',
+    tabTpl: 'Шаблоны', tabLaw: 'Права и сроки', tabSteps: 'Чек-лист', tabHist: 'История',
+    lblWhere: 'Куда обращаемся',
+    lblAddress: 'Ваш адрес (как в шапке заявления)',
+    lblPhone: 'Телефон для связи',
+    lblProblem: 'Опишите проблему (можно по-русски — соберу фразу сам, или пишите сразу на туркменском)',
+    lblPast: 'Куда уже обращались раньше и когда (если это повторное обращение)',
+    lblPhoto: 'Фото проблемы (необязательно, но усиливает заявление)',
+    btnPhotoRemove: 'Убрать фото',
+    btnGen: 'Собрать заявление',
+    btnCopy: 'Скопировать текст',
+    btnPrint: 'Печать / Сохранить как PDF',
+    btnSave: 'Сохранить в историю',
+    pdfHint: 'Если нет принтера рядом: в окне печати вверху выберите «Сохранить как PDF» вместо принтера — файл появится в папке Download, и его можно нести в копицентр.',
+    lawTag1: 'Сроки ответа', lawH1: 'Сколько должны рассматривать обращение',
+    lawP1a: 'Как правило: вопросы, не требующие проверки — до 15 дней. Если нужна проверка на месте (ваш случай с колодцем — почти всегда) — до 1 месяца со дня регистрации.',
+    lawP1b: 'Если требуется дополнительная проверка или согласование с другой организацией, срок могут продлить ещё до 1 месяца — но обязаны письменно вас об этом уведомить.',
+    lawTag2: 'Если письмо по почте', lawH2: 'Когда начинается отсчёт срока',
+    lawP2a: 'Срок считается не со дня отправки, а со дня регистрации письма в канцелярии организации. Внутри города это обычно 1-3 дня после отправки.',
+    lawP2b: 'Сохраняйте почтовую квитанцию — это ваше доказательство даты обращения.',
+    lawTag3: 'Если не отвечают', lawH3: 'Куда идти дальше',
+    lawP3a: '1) Хякимлик города/этрапа — если жалоба была в отраслевую службу и она бездействует.',
+    lawP3b: '2) Прокуратура — вправе проверять исполнение обязанностей госорганами и коммунальными службами, вплоть до привлечения виновных к ответственности.',
+    lawP3c: '3) Adalatçy (Уполномоченный по правам человека Туркменистана) — принимает обращения, если госорган нарушил права и бездействует. Обычно туда обращаются уже после того, как испробованы обычные инстанции.',
+    lawTag4: 'Что усиливает жалобу', lawH4: 'Как писать, если это уже не первое обращение',
+    lawP4a: 'Обязательно указывайте: куда обращались раньше, какого числа, и что ответа/результата не было. Это превращает жалобу из "просьбы" в основание для проверки самой организации за бездействие.',
+    caveatLaw: 'Это общие ориентиры, собранные из открытых источников, а не точная цитата статей закона — актуальные редакции законов Туркменистана не всегда есть в открытом доступе. При подаче уточняйте точные сроки и порядок на месте, в приёмной самой организации.',
+    histEmpty: 'Здесь появятся сохранённые заявления, когда нажмёте «Сохранить в историю».',
+    step1t: 'Соберите подписи соседей', step1d: 'ФИО и подпись каждого в таблице внизу заявления.',
+    step2t: 'Впишите дату', step2d: 'Число подачи — в строке "Senesi".',
+    step3t: 'Распечатайте с запасом', step3d: 'Один экземпляр для организации, второй (или фото уже подписанного) — себе.',
+    step4t: 'Подайте лично или по почте', step4d: 'Лично — просите штамп/входящий номер на своём экземпляре. По почте — заказным письмом, сохраните квитанцию.',
+    step5t: 'Засеките срок', step5d: 'Обычно до 1 месяца с даты регистрации.',
+    step6t: 'Нет ответа — идём выше', step6d: 'Хякимлик → прокуратура, указывая даты прошлых обращений.',
+    toastCopied: 'Скопировано', toastSaved: 'Сохранено в историю', toastFail: 'Не удалось сохранить',
+    histCopy: 'Скопировать', histDel: 'Удалить'
+  },
+  tk: {
+    title: 'Arza Kömekçi',
+    subtitle: 'Döwlet edaralaryna arza şablonlary, möhletleriňiz we hukuklaryňyz, tabşyrmak üçin çek-list.',
+    tabTpl: 'Şablonlar', tabLaw: 'Hukuklar we möhletler', tabSteps: 'Çek-list', tabHist: 'Taryh',
+    lblWhere: 'Kime ýüz tutýarys',
+    lblAddress: 'Salgyňyz (arzanyň başynda ýazylyşy ýaly)',
+    lblPhone: 'Habarlaşmak üçin telefon',
+    lblProblem: 'Meseläni beýan ediň (rusça ýazsaňyz hem bolýar, ýa-da göni türkmençe ýazyň)',
+    lblPast: 'Öň kime we haçan ýüz tutdyňyz (gaýtalanýan ýüz tutma bolsa)',
+    lblPhoto: 'Meseläniň suraty (hökman däl, ýöne arzany güýçlendirýär)',
+    btnPhotoRemove: 'Suraty aýyr',
+    btnGen: 'Arza taýýarla',
+    btnCopy: 'Teksti göçür',
+    btnPrint: 'Çap et / PDF hökmünde sakla',
+    btnSave: 'Taryha sakla',
+    pdfHint: 'Printer ýok bolsa: çap penjiresiniň ýokarsynda "Printer saýlaň" ýerine "PDF hökmünde sakla" saýlaň — faýl Download papkasynda peýda bolar, ony kopi merkezine äkidip bolar.',
+    lawTag1: 'Jogap möhletleri', lawH1: 'Ýüz tutma näçe wagtda seredilmeli',
+    lawP1a: 'Adatça: barlag talap etmeýän meseleler — 15 gün. Ýerinde barlag gerek bolsa (guýy ýagdaýy ýaly) — hasaba alnan gününden 1 aý.',
+    lawP1b: 'Başga edara bilen ylalaşyk gerek bolsa, möhleti ýene 1 aý uzaldyp bilerler — ýöne bu barada ýazmaça habar bermeli.',
+    lawTag2: 'Poçta arkaly iberilse', lawH2: 'Möhlet haçan başlaýar',
+    lawP2a: 'Möhlet iberen gününden däl-de, hatyň edaranyň kansenlýariýasynda hasaba alnan gününden hasaplanýar. Şäher içinde bu adatça 1-3 gün.',
+    lawP2b: 'Poçta kwitansiýasyny saklaň — bu ýüz tutan senäňiziň subutnamasy.',
+    lawTag3: 'Jogap gelmese', lawH3: 'Mundan beýläk nirä ýüz tutmaly',
+    lawP3a: '1) Şäher/etrap häkimligi — pudak gullugy jogap bermese.',
+    lawP3b: '2) Prokuratura — döwlet we jemagat gulluklarynyň borçlaryny ýerine ýetirişini barlamaga, günäkärleri jogapkärçilige çekmäge haklydyr.',
+    lawP3c: '3) Adalatçy (Türkmenistanyň Adam hukuklary boýunça ygtyýarly wekili) — döwlet edarasy hukuklary bozup, hereketsizlik etse kabul edýär. Adatça beýleki ýollar synanyşylandan soň ýüz tutulýar.',
+    lawTag4: 'Arzany güýçlendirmek', lawH4: 'Bu ilkinji ýüz tutma bolmasa nädip ýazmaly',
+    lawP4a: 'Hökman görkeziň: öň kime we haçan ýüz tutandygyňyzy, jogap/netije bolmandygyny. Bu arzany "haýyşdan" edaranyň hereketsizligi üçin barlag esasyna öwürýär.',
+    caveatLaw: 'Bular açyk çeşmelerden ýygnalan umumy maglumatlar, kanun maddalarynyň takyk sitatasy däl — Türkmenistanyň kanunlarynyň iň soňky redaksiýalary hemişe açyk elýeterli däl. Tabşyranyňyzda takyk möhletleri we tertibi edaranyň özünde anyklaň.',
+    histEmpty: 'Siz "Taryha sakla" düwmesine basanyňyzdan soň, taýýarlanan arzalar şu ýerde peýda bolar.',
+    step1t: 'Goňşularyň gollaryny ýygnaň', step1d: 'Arzanyň aşagyndaky tablisada her kimiň A.A.F.I. we goly.',
+    step2t: 'Senesini ýazyň', step2d: 'Tabşyrylýan sene — "Senesi" setirinde.',
+    step3t: 'Ätiýaçlyk bilen çap ediň', step3d: 'Bir nusga edara üçin, ikinjisi (ýa-da gol çekilen nusganyň suraty) — özüňize.',
+    step4t: 'Özüňiz ýa-da poçta arkaly tabşyryň', step4d: 'Özüňiz — öz nusgaňyza möhür/gelen belgi soraň. Poçta arkaly — sargytly hat bilen, kwitansiýany saklaň.',
+    step5t: 'Möhleti belläň', step5d: 'Adatça hasaba alnan senesinden 1 aý.',
+    step6t: 'Jogap ýok — has ýokary derejä', step6d: 'Häkimlik → prokuratura, öňki ýüz tutmalaryň senelerini görkezip.',
+    toastCopied: 'Göçürildi', toastSaved: 'Taryha sakladyldy', toastFail: 'Saklap bolmady',
+    histCopy: 'Göçür', histDel: 'Poz'
+  }
+};
+
+let currentLang = 'ru';
+try { currentLang = localStorage.getItem('arza_lang') || 'ru'; } catch (e) {}
+
+function applyLang() {
+  const dict = I18N[currentLang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
+  });
+  const caveat = document.getElementById('lawCaveat');
+  if (caveat) caveat.textContent = dict.caveatLaw;
+  renderHistory();
+}
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  currentLang = currentLang === 'ru' ? 'tk' : 'ru';
+  try { localStorage.setItem('arza_lang', currentLang); } catch (e) {}
+  applyLang();
+});
+
+let photoDataUrl = null;
+
+document.getElementById('fPhoto').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    photoDataUrl = ev.target.result;
+    document.getElementById('photoPreview').src = photoDataUrl;
+    document.getElementById('photoPreviewWrap').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('photoRemove').addEventListener('click', () => {
+  photoDataUrl = null;
+  document.getElementById('fPhoto').value = '';
+  document.getElementById('photoPreviewWrap').style.display = 'none';
+});
+
 const TEMPLATES = {
   sanitariya: {
     label: 'Sanitariýa-epidemiologiýa gullugy',
@@ -514,6 +653,14 @@ document.getElementById('genBtn').addEventListener('click', () => {
   document.getElementById('outputBtns').style.gap = '10px';
   document.getElementById('outputBtns').style.flexWrap = 'wrap';
   window._lastArza = { label: t.label, text };
+
+  const printPhotoWrap = document.getElementById('printPhotoWrap');
+  if (photoDataUrl) {
+    document.getElementById('printPhoto').src = photoDataUrl;
+    printPhotoWrap.style.display = 'block';
+  } else {
+    printPhotoWrap.style.display = 'none';
+  }
 });
 
 document.getElementById('copyBtn').addEventListener('click', async () => {
@@ -528,7 +675,7 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
     document.execCommand('copy');
     document.body.removeChild(ta);
   }
-  showToast('Скопировано');
+  showToast(I18N[currentLang].toastCopied);
 });
 
 document.getElementById('printBtn').addEventListener('click', () => {
@@ -546,9 +693,9 @@ document.getElementById('saveBtn').addEventListener('click', () => {
     });
     localStorage.setItem('arza_history', JSON.stringify(list.slice(0, 30)));
     renderHistory();
-    showToast('Сохранено в историю');
+    showToast(I18N[currentLang].toastSaved);
   } catch (e) {
-    showToast('Не удалось сохранить');
+    showToast(I18N[currentLang].toastFail);
   }
 });
 
@@ -567,6 +714,7 @@ function renderHistory() {
   wrap.innerHTML = '';
   if (!list.length) { empty.style.display = 'block'; return; }
   empty.style.display = 'none';
+  const dict = I18N[currentLang];
   list.forEach((item, idx) => {
     const card = document.createElement('div');
     card.className = 'card';
@@ -576,15 +724,15 @@ function renderHistory() {
       '<span style="font-size:12px; color:var(--ink-soft);">' + item.date + '</span>' +
       '</div>' +
       '<div class="output show" style="margin:0 0 12px; max-height:160px; overflow:auto;">' + item.text.replace(/</g,'&lt;') + '</div>' +
-      '<button class="btn secondary" data-copy="' + idx + '" style="margin-right:8px;">Скопировать</button>' +
-      '<button class="btn secondary" data-del="' + idx + '">Удалить</button>';
+      '<button class="btn secondary" data-copy="' + idx + '" style="margin-right:8px;">' + dict.histCopy + '</button>' +
+      '<button class="btn secondary" data-del="' + idx + '">' + dict.histDel + '</button>';
     wrap.appendChild(card);
   });
   wrap.querySelectorAll('[data-copy]').forEach(b => {
     b.addEventListener('click', async () => {
       const item = list[+b.dataset.copy];
       try { await navigator.clipboard.writeText(item.text); } catch (e) {}
-      showToast('Скопировано');
+      showToast(I18N[currentLang].toastCopied);
     });
   });
   wrap.querySelectorAll('[data-del]').forEach(b => {
@@ -595,7 +743,7 @@ function renderHistory() {
     });
   });
 }
-renderHistory();
+applyLang();
 
 // offline support
 if ('serviceWorker' in navigator) {
