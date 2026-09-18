@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arza Kömekçi — помощник по обращениям</title>
+<meta name="theme-color" content="#1f2621">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @media print {
+    nav.tabs, .btn, header .subtitle, .toast, #panel-law, #panel-steps { display: none !important; }
+    body { background: white; }
+    .output { display: block !important; border: none; padding: 0; }
+    section.panel { display: block !important; }
+  }
+</style>
+<style>
+  :root {
+    --paper: #eeece3;
+    --paper-2: #e4e1d5;
+    --ink: #1f2621;
+    --ink-soft: #4a5249;
+    --seal: #9c3b2c;
+    --seal-dark: #7c2d21;
+    --green: #2c5a41;
+    --green-soft: #cfe0d3;
+    --line: #c8c3b3;
+    --white: #faf9f5;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --paper: #1b201c;
+      --paper-2: #232922;
+      --ink: #eae7db;
+      --ink-soft: #b7b6a9;
+      --line: #3a4038;
+      --white: #262c25;
+      --green-soft: #223129;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1b201c;
+    --paper-2: #232922;
+    --ink: #eae7db;
+    --ink-soft: #b7b6a9;
+    --line: #3a4038;
+    --white: #262c25;
+    --green-soft: #223129;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 28px 18px 80px;
+  }
+
+  header.hero {
+    border-bottom: 3px double var(--ink);
+    padding-bottom: 22px;
+    margin-bottom: 28px;
+  }
+  .stamp {
+    width: 54px; height: 54px;
+    border: 2.5px solid var(--seal);
+    border-radius: 50%;
+    color: var(--seal);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Noto Serif', serif;
+    font-weight: 700;
+    font-size: 22px;
+    transform: rotate(-8deg);
+    margin-bottom: 14px;
+    flex-shrink: 0;
+  }
+  .hero-top { display: flex; align-items: flex-start; gap: 14px; }
+  h1 {
+    font-family: 'Noto Serif', serif;
+    font-weight: 700;
+    font-size: clamp(26px, 6vw, 34px);
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    color: var(--ink-soft);
+    font-size: 15px;
+    max-width: 46ch;
+  }
+
+  nav.tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  nav.tabs button {
+    background: none;
+    border: none;
+    font: inherit;
+    font-weight: 600;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    padding: 10px 4px 12px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    margin-right: 18px;
+  }
+  nav.tabs button.active {
+    color: var(--ink);
+    border-bottom-color: var(--seal);
+  }
+
+  section.panel { display: none; }
+  section.panel.active { display: block; }
+
+  .card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin: 14px 0 6px;
+  }
+  label:first-child { margin-top: 0; }
+  select, textarea, input[type=text] {
+    width: 100%;
+    font: inherit;
+    font-size: 15px;
+    padding: 10px 11px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: var(--paper);
+    color: var(--ink);
+    resize: vertical;
+  }
+  textarea { min-height: 64px; }
+  select:focus, textarea:focus, input:focus {
+    outline: 2px solid var(--seal);
+    outline-offset: 1px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--seal);
+    color: var(--white);
+    border: none;
+    font: inherit;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 12px 20px;
+    border-radius: 2px;
+    cursor: pointer;
+    margin-top: 18px;
+  }
+  .btn:active { background: var(--seal-dark); }
+  .btn.secondary {
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+  }
+
+  .output {
+    white-space: pre-wrap;
+    font-family: 'Noto Serif', serif;
+    font-size: 14.5px;
+    line-height: 1.65;
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 18px;
+    margin-top: 16px;
+    display: none;
+  }
+  .output.show { display: block; }
+
+  .toast {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity .2s, transform .2s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .law-card h3 {
+    font-family: 'Noto Serif', serif;
+    font-size: 17px;
+    margin: 0 0 8px;
+  }
+  .law-card p { margin: 0 0 8px; font-size: 14.5px; color: var(--ink); }
+  .law-card p:last-child { margin-bottom: 0; }
+  .tag {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: var(--green);
+    background: var(--green-soft);
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .caveat {
+    font-size: 13px;
+    color: var(--ink-soft);
+    border-left: 3px solid var(--seal);
+    padding-left: 12px;
+    margin-top: 24px;
+  }
+
+  ol.checklist { margin: 0; padding-left: 0; list-style: none; counter-reset: step; }
+  ol.checklist li {
+    counter-increment: step;
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  ol.checklist li:last-child { border-bottom: none; }
+  ol.checklist li::before {
+    content: counter(step);
+    font-family: 'Noto Serif', serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--seal);
+    border: 1.5px solid var(--seal);
+    border-radius: 50%;
+    width: 26px; height: 26px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  ol.checklist strong { display: block; margin-bottom: 3px; font-size: 15px; }
+  ol.checklist span { font-size: 14px; color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-top">
+      <div class="stamp">A</div>
+      <div>
+        <h1>Arza Kömekçi</h1>
+        <div class="subtitle">Шаблоны заявлений в госорганы, ваши сроки и права, чек-лист подачи — на туркменском и по-русски.</div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="active" data-tab="tpl">Шаблоны</button>
+    <button data-tab="law">Права и сроки</button>
+    <button data-tab="steps">Чек-лист</button>
+    <button data-tab="hist">История</button>
+  </nav>
+
+  <section class="panel active" id="panel-tpl">
+    <div class="card">
+      <label for="tplType">Куда обращаемся</label>
+      <select id="tplType"></select>
+
+      <label for="fAddress">Ваш адрес (как в шапке заявления)</label>
+      <textarea id="fAddress" placeholder="Lebap welaýaty, Türkmenabat şäheri, 3-nji mikroraýon, 14-nji jaý, 1, 2, 3-nji öýleriň ýaşaýjylary tarapyndan"></textarea>
+
+      <label for="fPhone">Телефон для связи</label>
+      <input type="text" id="fPhone" placeholder="+993 65 20-95-59">
+
+      <label for="fProblem">Опишите проблему (можно по-русски — соберу фразу сам, или пишите сразу на туркменском)</label>
+      <textarea id="fProblem" placeholder="Например: канализационный колодец у дома открыт, течёт 4-5 лет, запах, комары"></textarea>
+
+      <label for="fPast">Куда уже обращались раньше и когда (если это повторное обращение)</label>
+      <input type="text" id="fPast" placeholder="Например: Sanitariýa gullugyna 18.09.2026, jogap gelmedi">
+
+      <button class="btn" id="genBtn">Собрать заявление</button>
+    </div>
+
+    <div class="output" id="output"></div>
+    <div id="outputBtns" style="display:none;">
+      <button class="btn secondary" id="copyBtn">Скопировать текст</button>
+      <button class="btn secondary" id="printBtn">Печать / PDF</button>
+      <button class="btn secondary" id="saveBtn">Сохранить в историю</button>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-law">
+    <div class="card law-card">
+      <span class="tag">Сроки ответа</span>
+      <h3>Сколько должны рассматривать обращение</h3>
+      <p>Как правило: вопросы, не требующие проверки — до 15 дней. Если нужна проверка на месте (ваш случай с колодцем — почти всегда) — до 1 месяца со дня регистрации.</p>
+      <p>Если требуется дополнительная проверка или согласование с другой организацией, срок могут продлить ещё до 1 месяца — но обязаны письменно вас об этом уведомить.</p>
+    </div>
+    <div class="card law-card">
+      <span class="tag">Если письмо по почте</span>
+      <h3>Когда начинается отсчёт срока</h3>
+      <p>Срок считается не со дня отправки, а со дня регистрации письма в канцелярии организации. Внутри города это обычно 1-3 дня после отправки.</p>
+      <p>Сохраняйте почтовую квитанцию — это ваше доказательство даты обращения.</p>
+    </div>
+    <div class="card law-card">
+      <span class="tag">Если не отвечают</span>
+      <h3>Куда идти дальше</h3>
+      <p>1) Хякимлик города/этрапа — если жалоба была в отраслевую службу и она бездействует.</p>
+      <p>2) Прокуратура — вправе проверять исполнение обязанностей госорганами и коммунальными службами, вплоть до привлечения виновных к ответственности.</p>
+      <p>3) Adalatçy (Уполномоченный по правам человека Туркменистана) — принимает обращения, если госорган нарушил права и бездействует. Обычно туда обращаются уже после того, как испробованы обычные инстанции.</p>
+    </div>
+    <div class="card law-card">
+      <span class="tag">Что усиливает жалобу</span>
+      <h3>Как писать, если это уже не первое обращение</h3>
+      <p>Обязательно указывайте: куда обращались раньше, какого числа, и что ответа/результата не было. Это превращает жалобу из "просьбы" в основание для проверки самой организации за бездействие.</p>
+    </div>
+    <p class="caveat">Это общие ориентиры, собранные из открытых источников, а не точная цитата статей закона — актуальные редакции законов Туркменистана не всегда есть в открытом доступе. При подаче уточняйте точные сроки и порядок на месте, в приёмной самой организации.</p>
+  </section>
+
+  <section class="panel" id="panel-hist">
+    <div class="card" id="histEmpty">Здесь появятся сохранённые заявления, когда нажмёте «Сохранить в историю».</div>
+    <div id="histList"></div>
+  </section>
+
+  <section class="panel" id="panel-steps">
+    <div class="card">
+      <ol class="checklist">
+        <li><div><strong>Соберите подписи соседей</strong><span>ФИО и подпись каждого в таблице внизу заявления.</span></div></li>
+        <li><div><strong>Впишите дату</strong><span>Число подачи — в строке "Senesi".</span></div></li>
+        <li><div><strong>Распечатайте с запасом</strong><span>Один экземпляр для организации, второй (или фото уже подписанного) — себе.</span></div></li>
+        <li><div><strong>Подайте лично или по почте</strong><span>Лично — просите штамп/входящий номер на своём экземпляре. По почте — заказным письмом, сохраните квитанцию.</span></div></li>
+        <li><div><strong>Засеките срок</strong><span>Обычно до 1 месяца с даты регистрации.</span></div></li>
+        <li><div><strong>Нет ответа — идём выше</strong><span>Хякимлик → прокуратура, указывая даты прошлых обращений.</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast">Скопировано</div>
+
+<script>
+const TEMPLATES = {
+  sanitariya: {
+    label: 'Sanitariýa-epidemiologiýa gullugy',
+    recipient: 'Türkmenabat şäher Sanitariýa-epidemiologiýa gullugynyň müdirine',
+    intro: 'Hormatly ýolbaşçy,',
+    requests: [
+      'Agzalan adrese sanitariýa barlagyny geçirmegiňizi',
+      'Sanitariýa kadalarynyň berjaý edilmegi we näsazlygyň düýpli düzedilmegi üçin degişli edaralara borçlandyryjy görkezme bermegiňizi',
+      'Şu arza boýunça kanunda bellenen möhletde ýazmaça jogap bermegiňizi',
+      'Işler geçirilenden soň ýagdaýyň gaýtalanmazlygyny üpjün etmek üçin gözegçilik barlagyny geçirmegiňizi'
+    ]
+  },
+  suwhojalyk: {
+    label: 'Suw hojalygy',
+    recipient: 'Türkmenabat şäher Suw hojalygy müdirine',
+    intro: 'Hormatly ýolbaşçy,',
+    requests: [
+      'Akaba ulgamyndaky näsazlygy düýpli barlamagy we esasy trubada abatlaýyş işlerini geçirmegi',
+      'Guýyny we onuň ýapgysyny kadaly we howpsuz ýagdaýa getirmegi',
+      'Şu arza boýunça kanunda bellenen möhletde ýazmaça jogap bermegiňizi',
+      'Işler geçirilenden soň ýagdaýyň gaýtalanmazlygyny üpjün etmek üçin gözegçilik barlagyny geçirmegiňizi'
+    ]
+  },
+  hakimlik: {
+    label: 'Şäher häkimligi',
+    recipient: 'Türkmenabat şäher häkimine',
+    intro: 'Hormatly şäher häkimi,',
+    requests: [
+      'Degişli gulluklara näsazlygy düýpli barlamagy we abatlaýyş işlerini geçirmegi tabşyrmagyňyzy',
+      'Ýagdaýy kadaly we howpsuz ýagdaýa getirmäge kömek etmegiňizi',
+      'Şu arza boýunça kanunda bellenen möhletde ýazmaça jogap bermegiňizi',
+      'Işler geçirilenden soň ýagdaýyň gaýtalanmazlygyny üpjün etmek üçin gözegçilik barlagyny geçirmegiňizi'
+    ]
+  },
+  prokuratura: {
+    label: 'Прокуратура (жалоба на бездействие)',
+    recipient: 'Türkmenabat şäher prokuraturasynyň müdirine',
+    intro: 'Hormatly ýolbaşçy,',
+    requests: [
+      'Agzalan edaralaryň hereketsizligi boýunça barlag geçirmegiňizi',
+      'Näsazlygy düzetmek üçin degişli edaralara borçlandyryjy görkezme bermegiňizi',
+      'Jogapkär işgärleri kanuna laýyklykda jogapkärçilige çekmek meselesini seretmegiňizi',
+      'Şu arza boýunça kanunda bellenen möhletde ýazmaça jogap bermegiňizi'
+    ]
+  },
+  jayhojalyk: {
+    label: 'Жайхожалык / ЖЭК (общая жалоба)',
+    recipient: 'Jaý-ulanyş edarasynyň müdirine',
+    intro: 'Hormatly ýolbaşçy,',
+    requests: [
+      'Agzalan meseläni gysga wagtda düzetmegiňizi',
+      'Işleriň hiline gözegçilik etmegiňizi',
+      'Şu arza boýunça kanunda bellenen möhletde ýazmaça jogap bermegiňizi'
+    ]
+  },
+  elektrik: {
+    label: 'Elektrik ulgamy (свет)',
+    recipient: 'Türkmenabat şäher elektrik ulgamlary müdirligine',
+    intro: 'Hormatly ýolbaşçy,',
+    requests: [
+      'Agzalan elektrik näsazlygyny barlamagy we düzetmegi',
+      'Howpsuzlyk kadalarynyň berjaý edilmegini üpjün etmegi',
+      'Şu arza boýunça kanunda bellenen möhletde ýazmaça jogap bermegiňizi'
+    ]
+  },
+  ýollar: {
+    label: 'Ýollar / çukurlar (дороги, ямы)',
+    recipient: 'Türkmenabat şäher ýol-ulag müdirligine',
+    intro: 'Hormatly ýolbaşçy,',
+    requests: [
+      'Agzalan ýoldaky çukurlary/näsazlygy düzetmegi',
+      'Ýolagçylaryň we sürüjileriň howpsuzlygyny üpjün etmek üçin çäre görmegi',
+      'Şu arza boýunça kanunda bellenen möhletde ýazmaça jogap bermegiňizi'
+    ]
+  },
+  galtaşyk: {
+    label: 'Goňşularyň sesi / şow-şum (шум соседей)',
+    recipient: 'Etrap polisiýa bölümine',
+    intro: 'Hormatly ýolbaşçy,',
+    requests: [
+      'Agzalan salgyda düzgün bozulmalary barlamagy',
+      'Kadalary düşündirmek we gaýtalanmazlygyny üpjün etmek üçin çäre görmegi',
+      'Şu arza boýunça kanunda bellenen möhletde ýazmaça jogap bermegiňizi'
+    ]
+  }
+};
+
+const sel = document.getElementById('tplType');
+Object.entries(TEMPLATES).forEach(([key, t]) => {
+  const opt = document.createElement('option');
+  opt.value = key;
+  opt.textContent = t.label;
+  sel.appendChild(opt);
+});
+
+// remember address/phone per-viewer
+try {
+  const savedAddr = localStorage.getItem('arza_address');
+  const savedPhone = localStorage.getItem('arza_phone');
+  if (savedAddr) document.getElementById('fAddress').value = savedAddr;
+  if (savedPhone) document.getElementById('fPhone').value = savedPhone;
+} catch (e) {}
+
+document.querySelectorAll('nav.tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('section.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+document.getElementById('genBtn').addEventListener('click', () => {
+  const t = TEMPLATES[sel.value];
+  const address = document.getElementById('fAddress').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  const problem = document.getElementById('fProblem').value.trim();
+  const past = document.getElementById('fPast').value.trim();
+
+  try {
+    localStorage.setItem('arza_address', address);
+    localStorage.setItem('arza_phone', phone);
+  } catch (e) {}
+
+  let text = '';
+  text += t.recipient + '\n';
+  text += 'Ýaşaýjylardan:\n';
+  if (address) text += address + '\n';
+  if (phone) text += 'Habarlaşmak üçin tel. belgisi: ' + phone + '\n';
+  text += '\n\nARZA\n\n';
+  text += t.intro + '\n\n';
+  if (problem) text += problem + '\n\n';
+  if (past) text += 'Bellik: ' + past + '.\n\n';
+  text += 'Goşundy: Arza degişli ýagdaýy görkezýän fotosuratlar goşulýar.\n\n';
+  text += 'Ýokarda agzalanlary göz öňünde tutup, Sizden aşakdakylary haýyş edýäris:\n\n';
+  t.requests.forEach((r, i) => {
+    text += (i + 1) + '. ' + r + (i === t.requests.length - 1 ? '.' : ';') + '\n';
+  });
+  text += '\n\nSenesi: "____" ____________ 2026 ý.\n\n';
+  text += 'Gol çekijiler (Ýaşaýjylar):\n';
+  text += '1. ________________________  Gol: _________\n';
+  text += '2. ________________________  Gol: _________\n';
+  text += '3. ________________________  Gol: _________\n';
+
+  const out = document.getElementById('output');
+  out.textContent = text;
+  out.classList.add('show');
+  document.getElementById('outputBtns').style.display = 'flex';
+  document.getElementById('outputBtns').style.gap = '10px';
+  document.getElementById('outputBtns').style.flexWrap = 'wrap';
+  window._lastArza = { label: t.label, text };
+});
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  const text = document.getElementById('output').textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+  showToast('Скопировано');
+});
+
+document.getElementById('printBtn').addEventListener('click', () => {
+  window.print();
+});
+
+document.getElementById('saveBtn').addEventListener('click', () => {
+  if (!window._lastArza) return;
+  try {
+    const list = JSON.parse(localStorage.getItem('arza_history') || '[]');
+    list.unshift({
+      label: window._lastArza.label,
+      text: window._lastArza.text,
+      date: new Date().toLocaleDateString('ru-RU')
+    });
+    localStorage.setItem('arza_history', JSON.stringify(list.slice(0, 30)));
+    renderHistory();
+    showToast('Сохранено в историю');
+  } catch (e) {
+    showToast('Не удалось сохранить');
+  }
+});
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1600);
+}
+
+function renderHistory() {
+  let list = [];
+  try { list = JSON.parse(localStorage.getItem('arza_history') || '[]'); } catch (e) {}
+  const empty = document.getElementById('histEmpty');
+  const wrap = document.getElementById('histList');
+  wrap.innerHTML = '';
+  if (!list.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  list.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
+      '<strong>' + item.label + '</strong>' +
+      '<span style="font-size:12px; color:var(--ink-soft);">' + item.date + '</span>' +
+      '</div>' +
+      '<div class="output show" style="margin:0 0 12px; max-height:160px; overflow:auto;">' + item.text.replace(/</g,'&lt;') + '</div>' +
+      '<button class="btn secondary" data-copy="' + idx + '" style="margin-right:8px;">Скопировать</button>' +
+      '<button class="btn secondary" data-del="' + idx + '">Удалить</button>';
+    wrap.appendChild(card);
+  });
+  wrap.querySelectorAll('[data-copy]').forEach(b => {
+    b.addEventListener('click', async () => {
+      const item = list[+b.dataset.copy];
+      try { await navigator.clipboard.writeText(item.text); } catch (e) {}
+      showToast('Скопировано');
+    });
+  });
+  wrap.querySelectorAll('[data-del]').forEach(b => {
+    b.addEventListener('click', () => {
+      list.splice(+b.dataset.del, 1);
+      try { localStorage.setItem('arza_history', JSON.stringify(list)); } catch (e) {}
+      renderHistory();
+    });
+  });
+}
+renderHistory();
+
+// offline support
+if ('serviceWorker' in navigator) {
+  try { navigator.serviceWorker.register('sw.js'); } catch (e) {}
+}
+</script>
+</body>
+</html>

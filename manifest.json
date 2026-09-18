@@ -1,0 +1,12 @@
+{
+  "name": "Arza Kömekçi",
+  "short_name": "Arza",
+  "description": "Шаблоны заявлений в госорганы, права и сроки, чек-лист подачи",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#eeece3",
+  "theme_color": "#1f2621",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
