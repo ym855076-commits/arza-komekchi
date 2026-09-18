@@ -11,9 +11,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   @media print {
     nav.tabs, .btn, header .subtitle, .toast, #panel-law, #panel-steps, #fPhoto, label[for="fPhoto"], #photoPreviewWrap { display: none !important; }
+    #panel-tpl > .card { display: none !important; }
     body { background: white; }
     .output { display: block !important; border: none; padding: 0; }
     section.panel { display: block !important; }
@@ -324,9 +326,10 @@
     </div>
     <div id="outputBtns" style="display:none;">
       <button class="btn secondary" id="copyBtn" data-i18n="btnCopy">Скопировать текст</button>
-      <button class="btn secondary" id="printBtn" data-i18n="btnPrint">Печать / Сохранить как PDF</button>
+      <button class="btn secondary" id="pdfBtn" data-i18n="btnPdf">Скачать PDF</button>
+      <button class="btn secondary" id="printBtn" data-i18n="btnPrint">Печать (выбрать принтер)</button>
       <button class="btn secondary" id="saveBtn" data-i18n="btnSave">Сохранить в историю</button>
-      <p class="caveat" data-i18n="pdfHint" style="margin-top:14px;">Если нет принтера рядом: в окне печати вверху выберите «Сохранить как PDF» вместо принтера — файл появится в папке Download, и его можно нести в копицентр.</p>
+      <p class="caveat" data-i18n="pdfHint" style="margin-top:14px;">Кнопка «Скачать PDF» сразу сохранит файл в папку Download на телефоне. Кнопка «Печать» — если хотите распечатать сразу через Bluetooth/Wi-Fi принтер.</p>
     </div>
   </section>
 
@@ -395,9 +398,11 @@ const I18N = {
     btnPhotoRemove: 'Убрать фото',
     btnGen: 'Собрать заявление',
     btnCopy: 'Скопировать текст',
-    btnPrint: 'Печать / Сохранить как PDF',
+    btnPdf: 'Скачать PDF',
+    btnPdfWorking: 'Готовлю PDF...',
+    btnPrint: 'Печать (выбрать принтер)',
     btnSave: 'Сохранить в историю',
-    pdfHint: 'Если нет принтера рядом: в окне печати вверху выберите «Сохранить как PDF» вместо принтера — файл появится в папке Download, и его можно нести в копицентр.',
+    pdfHint: 'Кнопка «Скачать PDF» сразу сохранит файл в папку Download на телефоне. Кнопка «Печать» — если хотите распечатать сразу через Bluetooth/Wi-Fi принтер.',
     lawTag1: 'Сроки ответа', lawH1: 'Сколько должны рассматривать обращение',
     lawP1a: 'Как правило: вопросы, не требующие проверки — до 15 дней. Если нужна проверка на месте (ваш случай с колодцем — почти всегда) — до 1 месяца со дня регистрации.',
     lawP1b: 'Если требуется дополнительная проверка или согласование с другой организацией, срок могут продлить ещё до 1 месяца — но обязаны письменно вас об этом уведомить.',
@@ -434,9 +439,11 @@ const I18N = {
     btnPhotoRemove: 'Suraty aýyr',
     btnGen: 'Arza taýýarla',
     btnCopy: 'Teksti göçür',
-    btnPrint: 'Çap et / PDF hökmünde sakla',
+    btnPdf: 'PDF ýükle',
+    btnPdfWorking: 'PDF taýýarlanýar...',
+    btnPrint: 'Çap et (printer saýla)',
     btnSave: 'Taryha sakla',
-    pdfHint: 'Printer ýok bolsa: çap penjiresiniň ýokarsynda "Printer saýlaň" ýerine "PDF hökmünde sakla" saýlaň — faýl Download papkasynda peýda bolar, ony kopi merkezine äkidip bolar.',
+    pdfHint: '"PDF ýükle" düwmesi faýly göni Download papkasyna ýükleýär. "Çap et" — Bluetooth/Wi-Fi printerden göni çap etmek üçin.',
     lawTag1: 'Jogap möhletleri', lawH1: 'Ýüz tutma näçe wagtda seredilmeli',
     lawP1a: 'Adatça: barlag talap etmeýän meseleler — 15 gün. Ýerinde barlag gerek bolsa (guýy ýagdaýy ýaly) — hasaba alnan gününden 1 aý.',
     lawP1b: 'Başga edara bilen ylalaşyk gerek bolsa, möhleti ýene 1 aý uzaldyp bilerler — ýöne bu barada ýazmaça habar bermeli.',
@@ -680,6 +687,44 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
 
 document.getElementById('printBtn').addEventListener('click', () => {
   window.print();
+});
+
+document.getElementById('pdfBtn').addEventListener('click', () => {
+  const container = document.createElement('div');
+  container.style.padding = '28px';
+  container.style.fontFamily = "'Noto Serif', serif";
+  container.style.whiteSpace = 'pre-wrap';
+  container.style.fontSize = '13px';
+  container.style.lineHeight = '1.6';
+  container.style.color = '#1f2621';
+  container.style.background = '#ffffff';
+  container.textContent = document.getElementById('output').textContent;
+  if (photoDataUrl) {
+    const img = document.createElement('img');
+    img.src = photoDataUrl;
+    img.style.maxWidth = '100%';
+    img.style.display = 'block';
+    img.style.margin = '18px auto 0';
+    container.appendChild(img);
+  }
+  document.body.appendChild(container);
+  const dict = I18N[currentLang];
+  const btn = document.getElementById('pdfBtn');
+  const oldText = btn.textContent;
+  btn.textContent = dict.btnPdfWorking || '...';
+  html2pdf().from(container).set({
+    filename: 'arza.pdf',
+    margin: 10,
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  }).save().then(() => {
+    document.body.removeChild(container);
+    btn.textContent = oldText;
+  }).catch(() => {
+    document.body.removeChild(container);
+    btn.textContent = oldText;
+    showToast(dict.toastFail);
+  });
 });
 
 document.getElementById('saveBtn').addEventListener('click', () => {
