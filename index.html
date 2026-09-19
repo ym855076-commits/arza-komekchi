@@ -11,7 +11,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   @media print {
     nav.tabs, .btn, header .subtitle, .toast, #panel-law, #panel-steps, #fPhoto, label[for="fPhoto"], #photoPreviewWrap { display: none !important; }
@@ -307,6 +306,7 @@
 
       <label for="fProblem" data-i18n="lblProblem">Опишите проблему (можно по-русски — соберу фразу сам, или пишите сразу на туркменском)</label>
       <textarea id="fProblem" placeholder="Например: канализационный колодец у дома открыт, течёт 4-5 лет, запах, комары"></textarea>
+      <button class="btn secondary" id="micBtn" type="button" style="margin-top:8px; padding:8px 14px; font-size:13px; display:none;" data-i18n="btnMic">🎤 Наговорить голосом</button>
 
       <label for="fPast" data-i18n="lblPast">Куда уже обращались раньше и когда (если это повторное обращение)</label>
       <input type="text" id="fPast" placeholder="Например: Sanitariýa gullugyna 18.09.2026, jogap gelmedi">
@@ -327,10 +327,9 @@
     </div>
     <div id="outputBtns" style="display:none;">
       <button class="btn secondary" id="copyBtn" data-i18n="btnCopy">Скопировать текст</button>
-      <button class="btn secondary" id="pdfBtn" data-i18n="btnPdf">Скачать PDF</button>
-      <button class="btn secondary" id="printBtn" data-i18n="btnPrint">Печать (выбрать принтер)</button>
+      <button class="btn secondary" id="printBtn" data-i18n="btnPrint">Печать / Сохранить как PDF</button>
       <button class="btn secondary" id="saveBtn" data-i18n="btnSave">Сохранить в историю</button>
-      <p class="caveat" data-i18n="pdfHint" style="margin-top:14px;">Кнопка «Скачать PDF» сразу сохранит файл в папку Download на телефоне. Кнопка «Печать» — если хотите распечатать сразу через Bluetooth/Wi-Fi принтер.</p>
+      <p class="caveat" data-i18n="pdfHint" style="margin-top:14px;">В открывшемся окне наверху нажмите «Выберите принтер» и выберите «Сохранить как PDF» — файл появится в папке Download.</p>
     </div>
   </section>
 
@@ -338,8 +337,8 @@
     <div class="card law-card">
       <span class="tag" data-i18n="lawTag1">Сроки ответа</span>
       <h3 data-i18n="lawH1">Сколько должны рассматривать обращение</h3>
-      <p data-i18n="lawP1a">Как правило: вопросы, не требующие проверки — до 15 дней. Если нужна проверка на месте (ваш случай с колодцем — почти всегда) — до 1 месяца со дня регистрации.</p>
-      <p data-i18n="lawP1b">Если требуется дополнительная проверка или согласование с другой организацией, срок могут продлить ещё до 1 месяца — но обязаны письменно вас об этом уведомить.</p>
+      <p data-i18n="lawP1a">По Закону Туркменистана «Об административном производстве»: орган должен принять решение о принятии заявления к рассмотрению или отказе в срок не более 1 месяца.</p>
+      <p data-i18n="lawP1b">Если для выяснения обстоятельств нужно больше времени, этот срок могут продлить ещё до 45 дней — но обязаны письменно уведомить вас о продлении.</p>
     </div>
     <div class="card law-card">
       <span class="tag" data-i18n="lawTag2">Если письмо по почте</span>
@@ -352,7 +351,8 @@
       <h3 data-i18n="lawH3">Куда идти дальше</h3>
       <p data-i18n="lawP3a">1) Хякимлик города/этрапа — если жалоба была в отраслевую службу и она бездействует.</p>
       <p data-i18n="lawP3b">2) Прокуратура — вправе проверять исполнение обязанностей госорганами и коммунальными службами, вплоть до привлечения виновных к ответственности.</p>
-      <p data-i18n="lawP3c">3) Adalatçy (Уполномоченный по правам человека Туркменистана) — принимает обращения, если госорган нарушил права и бездействует. Обычно туда обращаются уже после того, как испробованы обычные инстанции.</p>
+      <p data-i18n="lawP3c">3) Суд — по Закону Туркменистана «Об обжаловании в суд действий госорганов, нарушающих конституционные права граждан» (статья 4): подать можно в течение 3 месяцев после письменного отказа, или через 3 месяца после истечения срока рассмотрения, если ответа вообще не было.</p>
+      <p data-i18n="lawP3d">4) Adalatçy (Уполномоченный по правам человека Туркменистана) — принимает обращения, если госорган нарушил права и бездействует. Обычно туда обращаются уже после того, как испробованы обычные инстанции.</p>
     </div>
     <div class="card law-card">
       <span class="tag" data-i18n="lawTag4">Что усиливает жалобу</span>
@@ -394,29 +394,34 @@ const I18N = {
     lblAddress: 'Ваш адрес (как в шапке заявления)',
     lblPhone: 'Телефон для связи',
     lblProblem: 'Опишите проблему (можно по-русски — соберу фразу сам, или пишите сразу на туркменском)',
+    btnMic: '🎤 Наговорить голосом', btnMicListening: '🎤 Слушаю...',
+    micErrPermission: 'Нет доступа к микрофону — разрешите доступ в настройках браузера для этого сайта.',
+    micErrNoSpeech: 'Речь не распознана, попробуйте ещё раз.',
+    micErrNetwork: 'Нужен интернет для голосового ввода — проверьте соединение.',
+    micErrNoMic: 'Микрофон не найден на устройстве.',
+    micErrGeneric: 'Не получилось распознать голос, попробуйте ещё раз или напишите текстом.',
     lblPast: 'Куда уже обращались раньше и когда (если это повторное обращение)',
     lblPhoto: 'Фото проблемы (необязательно, но усиливает заявление)',
     btnPhotoRemove: 'Убрать фото',
     btnGen: 'Собрать заявление',
     btnCopy: 'Скопировать текст',
-    btnPdf: 'Скачать PDF',
-    btnPdfWorking: 'Готовлю PDF...',
-    btnPrint: 'Печать (выбрать принтер)',
+    btnPrint: 'Печать / Сохранить как PDF',
     btnSave: 'Сохранить в историю',
-    pdfHint: 'Кнопка «Скачать PDF» сразу сохранит файл в папку Download на телефоне. Кнопка «Печать» — если хотите распечатать сразу через Bluetooth/Wi-Fi принтер.',
+    pdfHint: 'В открывшемся окне наверху нажмите «Выберите принтер» и выберите «Сохранить как PDF» — файл появится в папке Download.',
     lawTag1: 'Сроки ответа', lawH1: 'Сколько должны рассматривать обращение',
-    lawP1a: 'Как правило: вопросы, не требующие проверки — до 15 дней. Если нужна проверка на месте (ваш случай с колодцем — почти всегда) — до 1 месяца со дня регистрации.',
-    lawP1b: 'Если требуется дополнительная проверка или согласование с другой организацией, срок могут продлить ещё до 1 месяца — но обязаны письменно вас об этом уведомить.',
+    lawP1a: 'По Закону Туркменистана «Об административном производстве»: орган должен принять решение о принятии заявления к рассмотрению или отказе в срок не более 1 месяца.',
+    lawP1b: 'Если для выяснения обстоятельств нужно больше времени, этот срок могут продлить ещё до 45 дней — но обязаны письменно уведомить вас о продлении.',
     lawTag2: 'Если письмо по почте', lawH2: 'Когда начинается отсчёт срока',
     lawP2a: 'Срок считается не со дня отправки, а со дня регистрации письма в канцелярии организации. Внутри города это обычно 1-3 дня после отправки.',
     lawP2b: 'Сохраняйте почтовую квитанцию — это ваше доказательство даты обращения.',
     lawTag3: 'Если не отвечают', lawH3: 'Куда идти дальше',
     lawP3a: '1) Хякимлик города/этрапа — если жалоба была в отраслевую службу и она бездействует.',
     lawP3b: '2) Прокуратура — вправе проверять исполнение обязанностей госорганами и коммунальными службами, вплоть до привлечения виновных к ответственности.',
-    lawP3c: '3) Adalatçy (Уполномоченный по правам человека Туркменистана) — принимает обращения, если госорган нарушил права и бездействует. Обычно туда обращаются уже после того, как испробованы обычные инстанции.',
+    lawP3c: '3) Суд — по Закону Туркменистана «Об обжаловании в суд действий госорганов, нарушающих конституционные права граждан» (статья 4): подать можно в течение 3 месяцев после письменного отказа, или через 3 месяца после истечения срока рассмотрения, если ответа вообще не было.',
+    lawP3d: '4) Adalatçy (Уполномоченный по правам человека Туркменистана) — принимает обращения, если госорган нарушил права и бездействует. Обычно туда обращаются уже после того, как испробованы обычные инстанции.',
     lawTag4: 'Что усиливает жалобу', lawH4: 'Как писать, если это уже не первое обращение',
     lawP4a: 'Обязательно указывайте: куда обращались раньше, какого числа, и что ответа/результата не было. Это превращает жалобу из "просьбы" в основание для проверки самой организации за бездействие.',
-    caveatLaw: 'Это общие ориентиры, собранные из открытых источников, а не точная цитата статей закона — актуальные редакции законов Туркменистана не всегда есть в открытом доступе. При подаче уточняйте точные сроки и порядок на месте, в приёмной самой организации.',
+    caveatLaw: 'Название законов и статья 4 (сроки обращения в суд) проверены по официальному сайту Генеральной прокуратуры Туркменистана и архиву законодательства. Остальные ориентиры (например, по конкретным ведомствам) собраны из общих источников — при подаче уточняйте детали на месте.',
     histEmpty: 'Здесь появятся сохранённые заявления, когда нажмёте «Сохранить в историю».',
     step1t: 'Соберите подписи соседей', step1d: 'ФИО и подпись каждого в таблице внизу заявления.',
     step2t: 'Впишите дату', step2d: 'Число подачи — в строке "Senesi".',
@@ -435,29 +440,34 @@ const I18N = {
     lblAddress: 'Salgyňyz (arzanyň başynda ýazylyşy ýaly)',
     lblPhone: 'Habarlaşmak üçin telefon',
     lblProblem: 'Meseläni beýan ediň (rusça ýazsaňyz hem bolýar, ýa-da göni türkmençe ýazyň)',
+    btnMic: '🎤 Sesli aýt', btnMicListening: '🎤 Diňleýär...',
+    micErrPermission: 'Mikrofona rugsat ýok — brauzeriň sazlamalarynda bu sahypa üçin rugsat beriň.',
+    micErrNoSpeech: 'Ses tanalmady, ýene synanyşyň.',
+    micErrNetwork: 'Sesli girizmek üçin internet gerek — birikmäni barlaň.',
+    micErrNoMic: 'Enjamda mikrofon tapylmady.',
+    micErrGeneric: 'Sesi tanap bolmady, ýene synanyşyň ýa-da tekst bilen ýazyň.',
     lblPast: 'Öň kime we haçan ýüz tutdyňyz (gaýtalanýan ýüz tutma bolsa)',
     lblPhoto: 'Meseläniň suraty (hökman däl, ýöne arzany güýçlendirýär)',
     btnPhotoRemove: 'Suraty aýyr',
     btnGen: 'Arza taýýarla',
     btnCopy: 'Teksti göçür',
-    btnPdf: 'PDF ýükle',
-    btnPdfWorking: 'PDF taýýarlanýar...',
-    btnPrint: 'Çap et (printer saýla)',
+    btnPrint: 'Çap et / PDF hökmünde sakla',
     btnSave: 'Taryha sakla',
-    pdfHint: '"PDF ýükle" düwmesi faýly göni Download papkasyna ýükleýär. "Çap et" — Bluetooth/Wi-Fi printerden göni çap etmek üçin.',
+    pdfHint: 'Açylan penjirede ýokarda "Printer saýlaň" basyň we "PDF hökmünde sakla" saýlaň — faýl Download papkasynda peýda bolar.',
     lawTag1: 'Jogap möhletleri', lawH1: 'Ýüz tutma näçe wagtda seredilmeli',
-    lawP1a: 'Adatça: barlag talap etmeýän meseleler — 15 gün. Ýerinde barlag gerek bolsa (guýy ýagdaýy ýaly) — hasaba alnan gününden 1 aý.',
-    lawP1b: 'Başga edara bilen ylalaşyk gerek bolsa, möhleti ýene 1 aý uzaldyp bilerler — ýöne bu barada ýazmaça habar bermeli.',
+    lawP1a: 'Türkmenistanyň "Administratiw önümçilik hakynda" Kanunyna görä: edara arzany kabul etmek ýa-da ondan ýüz döndermek hakynda çözgüdi 1 aýdan köp bolmadyk möhletde kabul etmeli.',
+    lawP1b: 'Ýagdaýy anyklamak üçin köp wagt gerek bolsa, bu möhlet ýene 45 güne çenli uzaldylyp bilner — emma bu barada ýazmaça habar bermeli.',
     lawTag2: 'Poçta arkaly iberilse', lawH2: 'Möhlet haçan başlaýar',
     lawP2a: 'Möhlet iberen gününden däl-de, hatyň edaranyň kansenlýariýasynda hasaba alnan gününden hasaplanýar. Şäher içinde bu adatça 1-3 gün.',
     lawP2b: 'Poçta kwitansiýasyny saklaň — bu ýüz tutan senäňiziň subutnamasy.',
     lawTag3: 'Jogap gelmese', lawH3: 'Mundan beýläk nirä ýüz tutmaly',
     lawP3a: '1) Şäher/etrap häkimligi — pudak gullugy jogap bermese.',
     lawP3b: '2) Prokuratura — döwlet we jemagat gulluklarynyň borçlaryny ýerine ýetirişini barlamaga, günäkärleri jogapkärçilige çekmäge haklydyr.',
-    lawP3c: '3) Adalatçy (Türkmenistanyň Adam hukuklary boýunça ygtyýarly wekili) — döwlet edarasy hukuklary bozup, hereketsizlik etse kabul edýär. Adatça beýleki ýollar synanyşylandan soň ýüz tutulýar.',
+    lawP3c: '3) Kazyýet — Türkmenistanyň "Raýatlaryň konstitusion hukuklaryny bozýan döwlet edaralarynyň hereketlerini suda şikaýat etmek hakynda" Kanunynyň 4-nji maddasyna görä: ýazmaça ýüz dönderilenden soň 3 aýyň dowamynda, ýa-da jogap düýbünden gelmedik bolsa, seretmeli möhlet geçenden 3 aý soň arza berip bolýar.',
+    lawP3d: '4) Adalatçy (Türkmenistanyň Adam hukuklary boýunça ygtyýarly wekili) — döwlet edarasy hukuklary bozup, hereketsizlik etse kabul edýär. Adatça beýleki ýollar synanyşylandan soň ýüz tutulýar.',
     lawTag4: 'Arzany güýçlendirmek', lawH4: 'Bu ilkinji ýüz tutma bolmasa nädip ýazmaly',
     lawP4a: 'Hökman görkeziň: öň kime we haçan ýüz tutandygyňyzy, jogap/netije bolmandygyny. Bu arzany "haýyşdan" edaranyň hereketsizligi üçin barlag esasyna öwürýär.',
-    caveatLaw: 'Bular açyk çeşmelerden ýygnalan umumy maglumatlar, kanun maddalarynyň takyk sitatasy däl — Türkmenistanyň kanunlarynyň iň soňky redaksiýalary hemişe açyk elýeterli däl. Tabşyranyňyzda takyk möhletleri we tertibi edaranyň özünde anyklaň.',
+    caveatLaw: 'Kanunlaryň atlary we 4-nji madda (kazyýete ýüz tutmak möhletleri) Türkmenistanyň Baş prokuraturasynyň resmi saýtyndan we kanunçylyk arhiwinden barlanyldy. Beýleki maglumatlar (aýry-aýry pudaklar boýunça) umumy çeşmelerden alnan — tabşyranyňyzda jikme-jikligi edaranyň özünde anyklaň.',
     histEmpty: 'Siz "Taryha sakla" düwmesine basanyňyzdan soň, taýýarlanan arzalar şu ýerde peýda bolar.',
     step1t: 'Goňşularyň gollaryny ýygnaň', step1d: 'Arzanyň aşagyndaky tablisada her kimiň A.A.F.I. we goly.',
     step2t: 'Senesini ýazyň', step2d: 'Tabşyrylýan sene — "Senesi" setirinde.',
@@ -509,6 +519,47 @@ document.getElementById('photoRemove').addEventListener('click', () => {
   document.getElementById('fPhoto').value = '';
   document.getElementById('photoPreviewWrap').style.display = 'none';
 });
+
+// voice input for problem description
+(function () {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const micBtn = document.getElementById('micBtn');
+  if (!SpeechRecognition) return;
+  micBtn.style.display = 'inline-flex';
+  let recognizing = false;
+  let recognition;
+
+  micBtn.addEventListener('click', () => {
+    if (recognizing) return;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'ru-RU';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognizing = true;
+    const dict = I18N[currentLang];
+    micBtn.textContent = dict.btnMicListening || '...';
+    recognition.start();
+
+    recognition.onresult = (e) => {
+      const text = e.results[0][0].transcript;
+      const field = document.getElementById('fProblem');
+      field.value = field.value ? (field.value.trim() + ' ' + text) : text;
+    };
+    recognition.onerror = (e) => {
+      const d = I18N[currentLang];
+      let msg = d.micErrGeneric;
+      if (e.error === 'not-allowed' || e.error === 'permission-denied') msg = d.micErrPermission;
+      else if (e.error === 'no-speech') msg = d.micErrNoSpeech;
+      else if (e.error === 'network') msg = d.micErrNetwork;
+      else if (e.error === 'audio-capture') msg = d.micErrNoMic;
+      showToast(msg);
+    };
+    recognition.onend = () => {
+      recognizing = false;
+      micBtn.textContent = I18N[currentLang].btnMic;
+    };
+  });
+})();
 
 const TEMPLATES = {
   sanitariya: {
@@ -644,6 +695,7 @@ document.getElementById('genBtn').addEventListener('click', () => {
   if (problem) text += problem + '\n\n';
   if (past) text += 'Bellik: ' + past + '.\n\n';
   text += 'Goşundy: Arza degişli ýagdaýy görkezýän fotosuratlar goşulýar.\n\n';
+  text += 'Bu arza "Administratiw önümçilik hakynda" Türkmenistanyň Kanunynyň 43-nji maddasynyň 1-nji böleginde bellenen ýüz tutmak hukugyna esaslanýar.\n\n';
   text += 'Ýokarda agzalanlary göz öňünde tutup, Sizden aşakdakylary haýyş edýäris:\n\n';
   t.requests.forEach((r, i) => {
     text += (i + 1) + '. ' + r + (i === t.requests.length - 1 ? '.' : ';') + '\n';
@@ -688,44 +740,6 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
 
 document.getElementById('printBtn').addEventListener('click', () => {
   window.print();
-});
-
-document.getElementById('pdfBtn').addEventListener('click', () => {
-  const container = document.createElement('div');
-  container.style.padding = '28px';
-  container.style.fontFamily = "'Noto Serif', serif";
-  container.style.whiteSpace = 'pre-wrap';
-  container.style.fontSize = '13px';
-  container.style.lineHeight = '1.6';
-  container.style.color = '#1f2621';
-  container.style.background = '#ffffff';
-  container.textContent = document.getElementById('output').textContent;
-  if (photoDataUrl) {
-    const img = document.createElement('img');
-    img.src = photoDataUrl;
-    img.style.maxWidth = '100%';
-    img.style.display = 'block';
-    img.style.margin = '18px auto 0';
-    container.appendChild(img);
-  }
-  document.body.appendChild(container);
-  const dict = I18N[currentLang];
-  const btn = document.getElementById('pdfBtn');
-  const oldText = btn.textContent;
-  btn.textContent = dict.btnPdfWorking || '...';
-  html2pdf().from(container).set({
-    filename: 'arza.pdf',
-    margin: 10,
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  }).save().then(() => {
-    document.body.removeChild(container);
-    btn.textContent = oldText;
-  }).catch(() => {
-    document.body.removeChild(container);
-    btn.textContent = oldText;
-    showToast(dict.toastFail);
-  });
 });
 
 document.getElementById('saveBtn').addEventListener('click', () => {
